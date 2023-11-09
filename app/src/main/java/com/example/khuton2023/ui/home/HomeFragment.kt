@@ -28,12 +28,6 @@ class HomeFragment : Fragment() {
         val homeViewModel =
             ViewModelProvider(this).get(HomeViewModel::class.java)
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
-        val root: View = binding.root
-
-        val textView: TextView = binding.textHome
-        homeViewModel.text.observe(viewLifecycleOwner) {
-            textView.text = it
-        }
 
 
 
@@ -43,7 +37,7 @@ class HomeFragment : Fragment() {
         ).allowMainThreadQueries().build()
 
         Log.d("XXXXXXXXXXXXXXX",db.studyMateDao().getAll().toString())
-        return root
+        return binding.root
     }
 
     override fun onDestroyView() {
