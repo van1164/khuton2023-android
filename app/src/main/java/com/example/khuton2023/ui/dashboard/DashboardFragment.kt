@@ -7,7 +7,12 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.room.Room
+import com.example.khuton2023.data.database.StudyMateDatabase
 import com.example.khuton2023.databinding.FragmentDashboardBinding
+import com.example.khuton2023.ui.home.ProfileRecyclerViewAdapter
+import com.example.khuton2023.ui.home.RecyclerViewDecoration
 
 class DashboardFragment : Fragment() {
 
@@ -26,13 +31,19 @@ class DashboardFragment : Fragment() {
             ViewModelProvider(this).get(DashboardViewModel::class.java)
 
         _binding = FragmentDashboardBinding.inflate(inflater, container, false)
-        val root: View = binding.root
 
-        val textView: TextView = binding.textDashboard
-        dashboardViewModel.text.observe(viewLifecycleOwner) {
-            textView.text = it
-        }
-        return root
+        val recyclerView = binding.chatRecycerView
+        val adapter = ChatRecyclerViewAdapter()
+        recyclerView.adapter = adapter
+        recyclerView.layoutManager = LinearLayoutManager(requireContext())
+        val db = Room.databaseBuilder(
+            requireContext(),
+            StudyMateDatabase::class.java, "StudyMate1"
+        ).allowMainThreadQueries().build()
+        val list = db.studyMateDao().getAll().map{Message(it,"용우야, 오늘 공부한 것 좀 보내줘",1)}
+        adapter.submitList(list)
+
+        return binding.root
     }
 
     override fun onDestroyView() {
