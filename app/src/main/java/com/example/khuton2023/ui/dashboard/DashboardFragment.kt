@@ -16,6 +16,9 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 
+
+
+
 class DashboardFragment : Fragment() {
 
     private var _binding: FragmentDashboardBinding? = null
@@ -40,7 +43,11 @@ class DashboardFragment : Fragment() {
 
         val list = listOf(Message(
             StudyMate("카리나",2000,1,1,
-                Mbti.ENFJ,"images/elTjMhSZ4Xh7zmx5gm13I8Opw6d2+/드"),"test",true))
+                Mbti.ENFJ,"images/elTjMhSZ4Xh7zmx5gm13I8Opw6d2+/카리나.jpg"),"메시지가 도착했습니다.",true),
+
+            Message(StudyMate("교수님",1968,1,1,
+                Mbti.ENFJ,"images/elTjMhSZ4Xh7zmx5gm13I8Opw6d2+/애플.jpg"),"메시지가 도착했습니다.",true)
+            )
         adapter.submitList(list)
 
 

@@ -18,16 +18,23 @@ import retrofit2.http.Query
 import java.util.concurrent.TimeUnit
 
 interface KhutonService {
+    @POST("/api/v1/chat/welcome")
+    fun getWelcome(
+        @Query("client_id") client_id : String,
+        @Query("persona_type") persona_type : String,
+    ): Call<String>
 
     @POST("/api/v1/chat/answer")
     fun setAnswer(
         @Query("client_id") client_id : String,
         @Query("question") question : String,
         @Query("user_answer") user_answer : String,
+        @Query("persona_type") persona_type : String,
     ): Call<String>
     @POST("/api/v1/chat/choice-quiz")
     fun getQuiz(
         @Query("client_id") client_id : String,
+        @Query("persona_type") persona_type : String,
     ): Call<String>
 
     @POST("/api/v1/chat/user")

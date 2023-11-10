@@ -17,6 +17,7 @@
         android:background="@drawable/mine_message_box"
         android:foregroundGravity="right"
         android:gravity="center|center_horizontal|center_vertical"
+        android:maxWidth="250dp"
         android:padding="8dp"
         android:text="테스트테스트테스트"
         android:textAlignment="gravity"

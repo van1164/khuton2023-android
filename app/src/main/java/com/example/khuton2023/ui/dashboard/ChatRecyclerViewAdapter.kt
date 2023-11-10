@@ -18,7 +18,7 @@ import com.google.firebase.storage.FirebaseStorage
 
 data class Message(
     val studyMate: StudyMate,
-    val message: String,
+    var message: String,
     val oppo:Boolean,
 )
 
@@ -44,7 +44,9 @@ class ChatRecyclerViewAdapter :
             binding.root.setOnClickListener {
                 binding.root.context.startActivity(
                     Intent(binding.root.context, ChattingActivity::class.java)
-                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK).putExtra("pro",
+                            binding.chatName.text =="교수님"
+                        )
                 )
             }
         }
