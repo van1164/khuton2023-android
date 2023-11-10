@@ -10,23 +10,25 @@
         android:id="@+id/constraintLayout2"
         android:layout_width="match_parent"
         android:layout_height="70dp"
+        android:background="@color/white"
+        android:elevation="20dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
         <TextView
-            android:id="@+id/textView8"
+            android:id="@+id/studyDocs"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="252dp"
-            android:text="학습목표"
+            android:layout_marginStart="200dp"
+            android:text="학습자료"
             android:textColor="@color/black"
+            android:textSize="20sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintHorizontal_bias="0.644"
             app:layout_constraintStart_toEndOf="@+id/textView9"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.51" />
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/textView9"
@@ -69,14 +71,15 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:background="@null"
+            android:background="@drawable/bg_edit_text"
             android:ems="10"
             android:hint="입력해주세요"
-            android:inputType="text" />
+            android:inputType="text"
+            android:padding="15dp" />
 
         <ImageButton
             android:id="@+id/sendButton"
-            android:layout_width="wrap_content"
+            android:layout_width="1dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal|center_vertical"
             android:layout_weight="1"

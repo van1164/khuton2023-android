@@ -12,6 +12,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.room.Room
+import com.bumptech.glide.Glide
 import com.example.khuton2023.CreateStudyMateActivity
 import com.example.khuton2023.MainActivity
 import com.example.khuton2023.data.model.Mbti
@@ -56,7 +57,7 @@ class HomeFragment : Fragment() {
 
         val database = Firebase.database.reference
         adapter.submitList(listOf(StudyMate("카리나",2000,1,1,Mbti.ENFJ,"images/elTjMhSZ4Xh7zmx5gm13I8Opw6d2+/드")))
-
+        val bitmap = Glide.with(requireContext()).load("images/elTjMhSZ4Xh7zmx5gm13I8Opw6d2+/드")
 
         database.child("studyMates")
             .addValueEventListener(object : ValueEventListener {
@@ -71,8 +72,6 @@ class HomeFragment : Fragment() {
 
         binding.button.setOnClickListener {
             val intent = Intent(requireContext(), CreateStudyMateActivity::class.java)
-            intent.flags =
-                Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
             startActivity(intent)
         }
         return binding.root

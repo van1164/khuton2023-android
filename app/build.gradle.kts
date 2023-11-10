@@ -44,6 +44,16 @@ dependencies {
     implementation ("com.github.bumptech.glide:glide:4.12.0")
     annotationProcessor ("com.github.bumptech.glide:compiler:4.12.0")
 
+    implementation ("com.google.firebase:firebase-messaging")
+    implementation ("com.google.firebase:firebase-analytics")
+    // Retrofit 라이브러리
+    implementation("com.squareup.retrofit2:retrofit:2.6.4")
+
+// Gson 변환기 라이브러리
+    implementation("com.squareup.retrofit2:converter-gson:2.6.4")
+
+// Scalars 변환기 라이브러리
+    implementation("com.squareup.retrofit2:converter-scalars:2.6.4")
     implementation("com.kakao.sdk:v2-all:2.17.0") // 전체 모듈 설치, 2.11.0 버전부터 지원
     implementation("com.kakao.sdk:v2-user:2.17.0") // 카카오 로그인
     implementation("com.kakao.sdk:v2-talk:2.17.0") // 친구, 메시지(카카오톡)

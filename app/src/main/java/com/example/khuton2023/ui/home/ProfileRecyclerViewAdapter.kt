@@ -1,6 +1,7 @@
 package com.example.khuton2023.ui.home
 
 import android.graphics.Bitmap
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.provider.MediaStore
 import android.util.Log
@@ -12,13 +13,14 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.RequestBuilder
 import com.example.khuton2023.R
 import com.example.khuton2023.data.model.StudyMate
 import com.example.khuton2023.databinding.ProfileItemBinding
 import com.google.firebase.storage.FirebaseStorage
 
 
-class ProfileRecyclerViewAdapter : ListAdapter<StudyMate, ProfileRecyclerViewAdapter.MyViewHolder>(diffUtil) {
+class ProfileRecyclerViewAdapter(bitmap:RequestBuilder<Drawable>) : ListAdapter<StudyMate, ProfileRecyclerViewAdapter.MyViewHolder>(diffUtil) {
     class MyViewHolder(private val binding: ProfileItemBinding) :
         RecyclerView.ViewHolder(binding.root) {
         fun bind(item: StudyMate) {
