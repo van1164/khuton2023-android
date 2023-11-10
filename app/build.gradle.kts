@@ -2,6 +2,7 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id ("kotlin-kapt")
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -10,7 +11,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.khuton2023"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -40,8 +41,31 @@ android {
 }
 
 dependencies {
-    val room_version = "2.5.0"
+    implementation("com.kakao.sdk:v2-all:2.17.0") // 전체 모듈 설치, 2.11.0 버전부터 지원
+    implementation("com.kakao.sdk:v2-user:2.17.0") // 카카오 로그인
+    implementation("com.kakao.sdk:v2-talk:2.17.0") // 친구, 메시지(카카오톡)
+    implementation("com.kakao.sdk:v2-story:2.17.0") // 카카오스토리
+    implementation("com.kakao.sdk:v2-share:2.17.0") // 메시지(카카오톡 공유)
+    implementation("com.kakao.sdk:v2-friend:2.17.0") // 카카오톡 소셜 피커, 리소스 번들 파일 포함
+    implementation("com.kakao.sdk:v2-navi:2.17.0") // 카카오내비
+    implementation("com.kakao.sdk:v2-cert:2.17.0") // 카카오 인증서비스
 
+
+    implementation("com.google.firebase:firebase-database-ktx:20.3.0")
+    val room_version = "2.5.0"
+    // Import the Firebase BoM
+    implementation(platform("com.google.firebase:firebase-bom:32.3.1"))
+
+    // When using the BoM, you don't specify versions in Firebase library dependencies
+
+    // Add the dependency for the Firebase SDK for Google Analytics
+    implementation("com.google.firebase:firebase-analytics-ktx")
+
+    // TODO: Add the dependencies for any other Firebase products you want to use
+    // See https://firebase.google.com/docs/android/setup#available-libraries
+    // For example, add the dependencies for Firebase Authentication and Cloud Firestore
+    implementation("com.google.firebase:firebase-auth-ktx")
+    implementation("com.google.firebase:firebase-firestore-ktx")
     implementation("androidx.room:room-runtime:$room_version")
     annotationProcessor("androidx.room:room-compiler:$room_version")
     kapt("androidx.room:room-compiler:$room_version")

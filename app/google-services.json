@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "75187756567",
+    "project_id": "chattingservice-59c1f",
+    "storage_bucket": "chattingservice-59c1f.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:75187756567:android:5577134b06908879998652",
+        "android_client_info": {
+          "package_name": "com.example.khuton2023"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAyg_YKI_S-tq8JqVkHe3oDWWLuUp2tZXk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

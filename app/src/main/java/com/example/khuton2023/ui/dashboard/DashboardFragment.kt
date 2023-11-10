@@ -31,17 +31,19 @@ class DashboardFragment : Fragment() {
             ViewModelProvider(this).get(DashboardViewModel::class.java)
 
         _binding = FragmentDashboardBinding.inflate(inflater, container, false)
-
-        val recyclerView = binding.chatRecycerView
-        val adapter = ChatRecyclerViewAdapter()
-        recyclerView.adapter = adapter
-        recyclerView.layoutManager = LinearLayoutManager(requireContext())
-        val db = Room.databaseBuilder(
-            requireContext(),
-            StudyMateDatabase::class.java, "StudyMate1"
-        ).allowMainThreadQueries().build()
-        val list = db.studyMateDao().getAll().map{Message(it,"용우야, 오늘 공부한 것 좀 보내줘",1)}
-        adapter.submitList(list)
+        val recycler_chatroom = binding.chatRecycerView
+        recycler_chatroom.layoutManager = LinearLayoutManager(requireContext())
+        recycler_chatroom.adapter = RecyclerChatRoomsAdapter(requireContext())
+//        val recyclerView = binding.chatRecycerView
+//        val adapter = ChatRecyclerViewAdapter()
+//        recyclerView.adapter = adapter
+//        recyclerView.layoutManager = LinearLayoutManager(requireContext())
+//        val db = Room.databaseBuilder(
+//            requireContext(),
+//            StudyMateDatabase::class.java, "StudyMate1"
+//        ).allowMainThreadQueries().build()
+//        val list = db.studyMateDao().getAll().map{Message(it,"용우야, 오늘 공부한 것 좀 보내줘",1)}
+//        adapter.submitList(list)
 
         return binding.root
     }

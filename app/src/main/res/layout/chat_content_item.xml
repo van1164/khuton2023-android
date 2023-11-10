@@ -49,4 +49,34 @@
         app:layout_constraintTop_toBottomOf="@+id/chatName"
         app:layout_constraintVertical_bias="0.111" />
 
+    <TextView
+        android:id="@+id/txt_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="126dp"
+        android:text="TextView"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.111"
+        app:layout_constraintStart_toEndOf="@+id/chatName"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.197" />
+
+    <TextView
+        android:id="@+id/txt_chat_count"
+        android:layout_width="29dp"
+        android:layout_height="25dp"
+        android:layout_marginStart="166dp"
+        android:layout_marginTop="30dp"
+        android:background="@drawable/circle"
+        android:gravity="center|center_horizontal|center_vertical"
+        android:text="1"
+        android:textColor="@color/white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.666"
+        app:layout_constraintStart_toEndOf="@+id/chatContent"
+        app:layout_constraintTop_toBottomOf="@+id/txt_date"
+        app:layout_constraintVertical_bias="0.0" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
