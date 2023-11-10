@@ -19,7 +19,6 @@ import com.google.firebase.storage.FirebaseStorage
 data class Message(
     val studyMate: StudyMate,
     val message: String,
-    val count: Int,
     val oppo:Boolean,
 )
 

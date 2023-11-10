@@ -1,74 +1,64 @@
 package com.example.khuton2023
 
-import android.content.Context
+
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.ImageView
+import androidx.appcompat.content.res.AppCompatResources
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import androidx.viewbinding.ViewBinding
+import com.bumptech.glide.Glide
 import com.example.khuton2023.databinding.MessageMineBinding
 import com.example.khuton2023.databinding.MessageOppoBinding
+import com.example.khuton2023.ui.dashboard.ChatRecyclerViewAdapter
 import com.example.khuton2023.ui.dashboard.Message
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.storage.FirebaseStorage
+import okhttp3.internal.notify
+
+
+abstract class MyViewHolder(binding: ViewBinding) : RecyclerView.ViewHolder(binding.root) {
+
+    abstract fun bind(position: Int)
+}
 
 class RecyclerMessagesAdapter(
-    val context: Context,
-) :
-    RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-    var messages: ArrayList<Message> = arrayListOf()     //메시지 목록
-    var messageKeys: ArrayList<String> = arrayListOf()   //메시지 키 목록
-    val myUid = FirebaseAuth.getInstance().currentUser?.uid.toString()
-    val recyclerView = (context as ChattingActivity).recycler_talks   //목록이 표시될 리사이클러 뷰
-
-//    init {
-//        setupMessages()
-//    }
-
-//    fun setupMessages() {
-//        getMessages()
-//    }
-
-//    fun getMessages() {
-//        FirebaseDatabase.getInstance().getReference("ChatRoom")
-//            .child("chatRooms").child(chatRoomKey!!).child("messages")   //전체 메시지 목록 가져오기
-//            .addValueEventListener(object : ValueEventListener {
-//                override fun onCancelled(error: DatabaseError) {}
-//                override fun onDataChange(snapshot: DataSnapshot) {
-//                    messages.clear()
-//                    for (data in snapshot.children) {
-//                        messages.add(data.getValue<Message>()!!)         //메시지 목록에 추가
-//                        messageKeys.add(data.key!!)                        //메시지 키 목록에 추가
-//                    }
-//                    notifyDataSetChanged()          //화면 업데이트
-//                    recyclerView.scrollToPosition(messages.size - 1)    //스크롤 최 하단으로 내리기
-//                }
-//            })
-//    }
-
-    override fun getItemViewType(position: Int): Int {               //메시지의 id에 따라 내 메시지/상대 메시지 구분
-        return if (messages[position].oppo) 0 else 1
+) : ListAdapter<Message, MyViewHolder>(diffUtil) {
+    override fun getItemViewType(position: Int): Int {
+        Log.d("XXXXXXXXXXXXXXXXX",currentList[position].toString())//메시지의 id에 따라 내 메시지/상대 메시지 구분
+        return if (currentList[position].oppo) 0 else 1
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
         return when (viewType) {
             1 -> {            //메시지가 내 메시지인 경우
-                val view =
-                    LayoutInflater.from(context)
-                        .inflate(R.layout.message_mine, parent, false)   //내 메시지 레이아웃으로 초기화
-
-                MyMessageViewHolder(MessageMineBinding.bind(view))
+                val view = MessageMineBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+                MyMessageViewHolder(view)
+//                FoodViewHolder(view)
+//                val view =
+//                    LayoutInflater.from(parent.context)
+//                        .inflate(R.layout.message_mine, parent, false)   //내 메시지 레이아웃으로 초기화
+//
+//                MyMessageViewHolder(MessageMineBinding.bind(view))
             }
             else -> {      //메시지가 상대 메시지인 경우
-                val view =
-                    LayoutInflater.from(context)
-                        .inflate(R.layout.message_oppo, parent, false)  //상대 메시지 레이아웃으로 초기화
-                OtherMessageViewHolder(MessageOppoBinding.bind(view))
+                val view = MessageOppoBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+                OtherMessageViewHolder(view)
+//                val view =
+//                    LayoutInflater.from(parent.context)
+//                        .inflate(R.layout.message_oppo, parent, false)  //상대 메시지 레이아웃으로 초기화
+//                OtherMessageViewHolder(MessageOppoBinding.bind(view))
             }
         }
     }
 
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        if (!messages[position].oppo) {       //레이아웃 항목 초기화
+    override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
+        Log.d("XXXXXXXXXXXXXXXXX",currentList[position].toString())
+        if (!currentList[position].oppo) {       //레이아웃 항목 초기화
             (holder as MyMessageViewHolder).bind(position)
         } else {
             (holder as OtherMessageViewHolder).bind(position)
@@ -76,22 +66,40 @@ class RecyclerMessagesAdapter(
     }
 
     override fun getItemCount(): Int {
-        return messages.size
+        return currentList.size
     }
 
     inner class OtherMessageViewHolder(itemView: MessageOppoBinding) :         //상대 메시지 뷰홀더
-        RecyclerView.ViewHolder(itemView.root) {
+        MyViewHolder(itemView) {
         var text = itemView.oppoText
         var name = itemView.oppoNameText
         var image = itemView.selectProfileButton
         var time = itemView.time
 
-        fun bind(position: Int) {           //메시지 UI 항목 초기화
-            var message = messages[position]
+        override fun bind(position: Int) {           //메시지 UI 항목 초기화
+            if (currentList[position].studyMate.profileImageUri != null) {
+                image.apply {
+                    FirebaseStorage.getInstance().reference.child(currentList[position].studyMate.profileImageUri!!).downloadUrl.addOnSuccessListener {
+                        Glide.with(this.context).load(it.toString()).into(this)
+                    }
+
+                    this.background =
+                        AppCompatResources.getDrawable(
+                            this.context,
+                            R.drawable.border_small
+                        )
+                    this.clipToOutline = true
+                    this.scaleType = ImageView.ScaleType.CENTER_CROP
+                }
+            }
+
+
+
+            var message = currentList[position]
             text.text = message.message
             name.text = message.studyMate.name
             time.text = "1분전"
-
+            Log.d("XXXXXXXXXXXXXXXXX",currentList[position].toString())
 //            setShown(position)             //해당 메시지 확인하여 서버로 전송
         }
 
@@ -117,23 +125,18 @@ class RecyclerMessagesAdapter(
             return dateText
         }
 
-//        fun setShown(position: Int) {          //메시지 확인하여 서버로 전송
-//            FirebaseDatabase.getInstance().getReference("ChatRoom")
-//                .child("chatRooms").child(chatRoomKey!!).child("messages")
-//                .child(messageKeys[position]).child("confirmed").setValue(true)
-//                .addOnSuccessListener {
-//                    Log.i("checkShown", "성공")
-//                }
-//        }
+
     }
 
     inner class MyMessageViewHolder(itemView: MessageMineBinding) :       // 내 메시지용 ViewHolder
-        RecyclerView.ViewHolder(itemView.root) {
+        MyViewHolder(itemView) {
         var text = itemView.mineText
+        var time = itemView.timeText
 
-        fun bind(position: Int) {            //메시지 UI 레이아웃 초기화
-            var message = messages[position]
+        override fun bind(position: Int) {            //메시지 UI 레이아웃 초기화
+            var message = currentList[position]
             text.text = message.message
+            time.text = "1분전"
         }
 
         fun getDateText(sendDate: String): String {        //메시지 전송 시각 생성
@@ -155,6 +158,18 @@ class RecyclerMessagesAdapter(
                 }
             }
             return dateText
+        }
+    }
+
+    companion object {
+        val diffUtil = object : DiffUtil.ItemCallback<Message>() {
+            override fun areItemsTheSame(oldItem: Message, newItem: Message): Boolean {
+                return oldItem == newItem
+            }
+
+            override fun areContentsTheSame(oldItem: Message, newItem: Message): Boolean {
+                return oldItem == newItem
+            }
         }
     }
 

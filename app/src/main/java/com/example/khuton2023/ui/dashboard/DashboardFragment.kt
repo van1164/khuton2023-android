@@ -40,7 +40,7 @@ class DashboardFragment : Fragment() {
 
         val list = listOf(Message(
             StudyMate("카리나",2000,1,1,
-                Mbti.ENFJ,"images/elTjMhSZ4Xh7zmx5gm13I8Opw6d2+/드"),"test",3,true))
+                Mbti.ENFJ,"images/elTjMhSZ4Xh7zmx5gm13I8Opw6d2+/드"),"test",true))
         adapter.submitList(list)
 
 
