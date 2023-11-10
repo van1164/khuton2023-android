@@ -1,5 +1,6 @@
 package com.example.khuton2023.ui.home
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -11,6 +12,8 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.room.Room
+import com.example.khuton2023.CreateStudyMateActivity
+import com.example.khuton2023.MainActivity
 import com.example.khuton2023.data.database.StudyMateDatabase
 import com.example.khuton2023.databinding.FragmentHomeBinding
 
@@ -41,7 +44,12 @@ class HomeFragment : Fragment() {
         ).allowMainThreadQueries().build()
 
         adapter.submitList(db.studyMateDao().getAll())
-
+        binding.button.setOnClickListener {
+            val intent = Intent(requireContext(), CreateStudyMateActivity::class.java)
+            intent.flags =
+                Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            startActivity(intent)
+        }
         return binding.root
     }
 
