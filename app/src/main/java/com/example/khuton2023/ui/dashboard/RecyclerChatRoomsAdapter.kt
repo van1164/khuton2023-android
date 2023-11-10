@@ -3,6 +3,7 @@ package com.example.khuton2023.ui.dashboard
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -22,7 +23,6 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.getValue
-import com.google.firebase.firestore.auth.User
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.TimeZone
@@ -46,6 +46,7 @@ class RecyclerChatRoomsAdapter(val context: Context) :
                 override fun onDataChange(snapshot: DataSnapshot) {
                     chatRooms.clear()
                     for (data in snapshot.children) {
+                        Log.d("AVAVAVAVAVAVAVVA",data.toString())
                         chatRooms.add(data.getValue<ChatRoom>()!!)
                         chatRoomKeys.add(data.key!!)
                     }

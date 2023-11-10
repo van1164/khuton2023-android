@@ -1,11 +1,5 @@
 package com.example.khuton2023.data.model
 
-import android.graphics.Bitmap
-import androidx.room.ColumnInfo
-import androidx.room.Entity
-import androidx.room.PrimaryKey
-import java.util.Date
-
 
 enum class Mbti(name:String) {
     ISFP("ISFP"),
@@ -26,14 +20,13 @@ enum class Mbti(name:String) {
     ENTJ("ENTJ"),
 }
 
-@Entity
-data class StudyMate(
-    @ColumnInfo(name = "name") val name: String,
-    @ColumnInfo(name = "year") val year: Int,
-    @ColumnInfo(name = "month") val month: Int,
-    @ColumnInfo(name = "day") val day: Int,
-    @ColumnInfo(name = "mbti") val mbti: Mbti,
-    @ColumnInfo(name = "profileImage") val profileImage: Bitmap?,
 
-    @PrimaryKey(autoGenerate = true) var uid: Int = 0,
+data class StudyMate(
+    val name: String="",
+    val year: Int=1999,
+    val month: Int=1,
+    val day: Int=1,
+    val mbti: Mbti=Mbti.ISFP,
+    val profileImageUri: String? = null,
+    val uid: String? =null
 )

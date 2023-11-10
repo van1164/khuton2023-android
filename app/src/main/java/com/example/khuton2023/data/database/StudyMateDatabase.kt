@@ -13,9 +13,9 @@ import com.example.khuton2023.data.model.RoomTypeConverter
 import com.example.khuton2023.data.model.StudyMate
 
 
-@Database(entities = [StudyMate::class], version = 3)
-@TypeConverters(RoomTypeConverter::class)
-abstract class StudyMateDatabase : RoomDatabase(){
-    abstract fun studyMateDao():StudyMateDao
-
-}
+//@Database(entities = [StudyMate::class], version = 3)
+//@TypeConverters(RoomTypeConverter::class)
+//abstract class StudyMateDatabase : RoomDatabase(){
+//    abstract fun studyMateDao():StudyMateDao
+//
+//}

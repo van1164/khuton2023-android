@@ -41,6 +41,9 @@ android {
 }
 
 dependencies {
+    implementation ("com.github.bumptech.glide:glide:4.12.0")
+    annotationProcessor ("com.github.bumptech.glide:compiler:4.12.0")
+
     implementation("com.kakao.sdk:v2-all:2.17.0") // 전체 모듈 설치, 2.11.0 버전부터 지원
     implementation("com.kakao.sdk:v2-user:2.17.0") // 카카오 로그인
     implementation("com.kakao.sdk:v2-talk:2.17.0") // 친구, 메시지(카카오톡)
@@ -50,7 +53,8 @@ dependencies {
     implementation("com.kakao.sdk:v2-navi:2.17.0") // 카카오내비
     implementation("com.kakao.sdk:v2-cert:2.17.0") // 카카오 인증서비스
 
-
+    implementation(platform("com.google.firebase:firebase-bom:26.8.0"))
+    implementation ("com.google.firebase:firebase-storage-ktx")
     implementation("com.google.firebase:firebase-database-ktx:20.3.0")
     val room_version = "2.5.0"
     // Import the Firebase BoM

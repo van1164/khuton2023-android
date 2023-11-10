@@ -9,6 +9,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.khuton2023.data.model.ChatRoom
 import com.example.khuton2023.databinding.ActivityChattingBinding
+import com.example.khuton2023.databinding.ActivityMainBinding
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.firestore.auth.User
 
@@ -28,5 +29,9 @@ class ChattingActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chatting)
+        binding = ActivityChattingBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        val adapter = RecyclerMessagesAdapter(this)
+        binding.recyclerView.adapter
     }
 }

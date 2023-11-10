@@ -1,6 +1,9 @@
 package com.example.khuton2023.ui.home
 
 import android.graphics.Bitmap
+import android.net.Uri
+import android.provider.MediaStore
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.ImageView
@@ -8,25 +11,24 @@ import androidx.appcompat.content.res.AppCompatResources.getDrawable
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.khuton2023.R
 import com.example.khuton2023.data.model.StudyMate
 import com.example.khuton2023.databinding.ProfileItemBinding
+import com.google.firebase.storage.FirebaseStorage
 
 
 class ProfileRecyclerViewAdapter : ListAdapter<StudyMate, ProfileRecyclerViewAdapter.MyViewHolder>(diffUtil) {
     class MyViewHolder(private val binding: ProfileItemBinding) :
         RecyclerView.ViewHolder(binding.root) {
         fun bind(item: StudyMate) {
-            if(item.profileImage != null){
+            if(item.profileImageUri != null){
                 binding.selectProfileButton.apply {
-                    this.setImageBitmap(
-                        Bitmap.createScaledBitmap(
-                            item.profileImage,
-                            500,
-                            700,
-                            true
-                        )
-                    )
+                    FirebaseStorage.getInstance().reference.child(item.profileImageUri).downloadUrl.addOnSuccessListener {
+                        Glide.with(this.context).load(it.toString()).into(this)
+//                        this.setImageURI(it)
+                    }
+
                     this.background = getDrawable(binding.selectProfileButton.context,R.drawable.border_profile)
                     this.clipToOutline = true
                     this.scaleType = ImageView.ScaleType.CENTER_CROP

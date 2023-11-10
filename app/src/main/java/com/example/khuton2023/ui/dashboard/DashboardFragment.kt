@@ -4,15 +4,17 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.room.Room
-import com.example.khuton2023.data.database.StudyMateDatabase
+import com.example.khuton2023.data.model.Mbti
+import com.example.khuton2023.data.model.StudyMate
 import com.example.khuton2023.databinding.FragmentDashboardBinding
-import com.example.khuton2023.ui.home.ProfileRecyclerViewAdapter
-import com.example.khuton2023.ui.home.RecyclerViewDecoration
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 
 class DashboardFragment : Fragment() {
 
@@ -29,11 +31,19 @@ class DashboardFragment : Fragment() {
     ): View {
         val dashboardViewModel =
             ViewModelProvider(this).get(DashboardViewModel::class.java)
-
+        val myUid = FirebaseAuth.getInstance().currentUser!!.uid
         _binding = FragmentDashboardBinding.inflate(inflater, container, false)
         val recycler_chatroom = binding.chatRecycerView
+        val adapter = ChatRecyclerViewAdapter()
         recycler_chatroom.layoutManager = LinearLayoutManager(requireContext())
-        recycler_chatroom.adapter = RecyclerChatRoomsAdapter(requireContext())
+        recycler_chatroom.adapter = adapter
+
+        val list = listOf(Message(
+            StudyMate("카리나",2000,1,1,
+                Mbti.ENFJ,"images/elTjMhSZ4Xh7zmx5gm13I8Opw6d2+/드"),"test",3,true))
+        adapter.submitList(list)
+
+
 //        val recyclerView = binding.chatRecycerView
 //        val adapter = ChatRecyclerViewAdapter()
 //        recyclerView.adapter = adapter
@@ -45,7 +55,7 @@ class DashboardFragment : Fragment() {
 //        val list = db.studyMateDao().getAll().map{Message(it,"용우야, 오늘 공부한 것 좀 보내줘",1)}
 //        adapter.submitList(list)
 
-        return binding.root
+            return binding.root
     }
 
     override fun onDestroyView() {
