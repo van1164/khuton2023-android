@@ -111,38 +111,10 @@ class ChattingActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         messagList.addAll(chatRoom.messages)
+        Log.d("AAAAAAAAAAAAAAA",messagList.toString())
         binding.textView9.text = chatRoom.studyMateName
         adapter.submitList(messagList)
 
-
-        KhutonService.create().getWelcome(
-            FirebaseAuth.getInstance().currentUser!!.uid,
-            if (isPro) "prof" else "karina"
-        ).enqueue(object : Callback<String> {
-            override fun onResponse(call: Call<String>, response: Response<String>) {
-                Log.d("BBBBBBBBBBBBBBBBBBBBBBBB", response.body().toString())
-                val message = Message(
-                    chatRoom.studyMateId,
-                    response.body().toString(),
-                    true,
-                    false,
-                    chatRoom.profileImage
-                )
-                messagList.add(message)
-                chatRoom.messages.add(message)
-                chatRoomDb.chatRoomDao().update(chatRoom)
-                // 성공적으로 업로드되었을 때의 처리
-                adapter.submitList(messagList)
-                adapter.notifyDataSetChanged()
-                binding.recyclerView.scrollToPosition(messagList.size - 1)
-
-            }
-
-            override fun onFailure(call: Call<String>, t: Throwable) {
-                // 업로드 실패 시의 처리
-                Log.d("TTTTTTTTTTTTTTTTTTTTTTTTTTTT", t.toString())
-            }
-        })
 
 
 //        val adapter = ChatRecyclerViewAdapter()
@@ -232,7 +204,6 @@ class ChattingActivity : AppCompatActivity() {
                 })
             }
             binding.editTextText.text = Editable.Factory.getInstance().newEditable("")
-            Log.d("XXXXXXXXXXXXXXXX", "XXXXXXXXXXXXXXXXXXXX")
             adapter.submitList(messagList)
             adapter.notifyDataSetChanged()
             binding.recyclerView.scrollToPosition(messagList.size - 1)
@@ -269,7 +240,6 @@ class ChattingActivity : AppCompatActivity() {
             }
 
             1 -> {
-                Log.d("XXXXXXXXXXXX", "XXXXXXXXXXXXXXXXXxx")
                 data?.let {
                     val uri = data.data
                     uri?.let { uri ->

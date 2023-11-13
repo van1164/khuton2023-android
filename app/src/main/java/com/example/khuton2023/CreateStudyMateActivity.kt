@@ -8,6 +8,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
+import android.util.Log
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
@@ -25,6 +26,13 @@ import com.example.khuton2023.data.model.Message
 import com.example.khuton2023.data.model.StudyMate
 import com.example.khuton2023.data.util.UidGenerator
 import com.example.khuton2023.databinding.ActivityCreateStudyMateBinding
+import com.example.khuton2023.network.service.KhutonService
+import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import java.util.Calendar
 
 class CreateStudyMateActivity : AppCompatActivity() {
@@ -167,21 +175,57 @@ class CreateStudyMateActivity : AppCompatActivity() {
                     studyMate.profileImage
                 )
             )
+            val chatRoom = ChatRoom(
+                studyMate.name,
+                studyMateId,
+                messages = mutableListOf<Message>(),
+                studyMate.profileImage
+            )
             chatRoomDb.chatRoomDao().insert(
-                ChatRoom(
-                    studyMate.name,
-                    studyMateId,
-                    messages = mutableListOf<Message>(),
-                    studyMate.profileImage
-                )
+                chatRoom
             )
 
+
+            getWelcome(chatRoomDb, studyMateId, studyMate.profileImage,chatRoom)
 
             val intent = Intent(this@CreateStudyMateActivity, MainActivity::class.java)
             intent.flags =
                 Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
             startActivity(intent)
         }
+
+    }
+
+    private fun getWelcome(
+        chatRoomDb: ChattingData,
+        studyMateId: String,
+        profileImage: Bitmap?,
+        chatRoom: ChatRoom
+    ) {
+        KhutonService.create().getWelcome(
+            FirebaseAuth.getInstance().currentUser!!.uid,
+            "karina"
+        ).enqueue(object : Callback<String> {
+            override fun onResponse(call: Call<String>, response: Response<String>) {
+                Log.d("KARINAKRINA", response.body().toString())
+                val message = Message(
+                    studyMateId,
+                    response.body().toString(),
+                    true,
+                    false,
+                    profileImage
+                )
+                chatRoom.messages.add(message)
+                chatRoomDb.chatRoomDao().update(chatRoom)
+                // 성공적으로 업로드되었을 때의 처리
+            }
+
+            override fun onFailure(call: Call<String>, t: Throwable) {
+                // 업로드 실패 시의 처리
+                Log.d("TTTTTTTTTTTTTTTTTTTTTTTTTTTT", t.toString())
+            }
+        })
+
 
     }
 

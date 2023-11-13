@@ -30,11 +30,13 @@ interface KhutonService {
         @Query("question") question : String,
         @Query("user_answer") user_answer : String,
         @Query("persona_type") persona_type : String,
+        @Query("live_mode") live_mode : Boolean = false
     ): Call<String>
     @POST("/api/v1/chat/choice-quiz")
     fun getQuiz(
         @Query("client_id") client_id : String,
         @Query("persona_type") persona_type : String,
+        @Query("live_mode") live_mode : Boolean = false
     ): Call<String>
 
     @POST("/api/v1/chat/user")

@@ -35,7 +35,6 @@ class RecyclerMessagesAdapter(
     val userName : String
 ) : ListAdapter<Message, MyViewHolder>(diffUtil) {
     override fun getItemViewType(position: Int): Int {
-        Log.d("XXXXXXXXXXXXXXXXX",currentList[position].toString())//메시지의 id에 따라 내 메시지/상대 메시지 구분
         return if (currentList[position].oppo) 0 else 1
     }
 
@@ -63,7 +62,6 @@ class RecyclerMessagesAdapter(
     }
 
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
-        Log.d("XXXXXXXXXXXXXXXXX",currentList[position].toString())
         if (!currentList[position].oppo) {       //레이아웃 항목 초기화
             (holder as MyMessageViewHolder).bind(position)
         } else {
@@ -88,6 +86,7 @@ class RecyclerMessagesAdapter(
 
         override fun bind(position: Int) {           //메시지 UI 항목 초기화
             if (currentList[position].profileImage != null) {
+                Log.d("PPPPPPPPPPPPPPPPPPPPPPPP",currentList[position].profileImage.toString())
                 image.apply {
                     this.setImageBitmap(
                         Bitmap.createScaledBitmap(
@@ -114,7 +113,6 @@ class RecyclerMessagesAdapter(
             text.text = message.message
             name.text = userName
             time.text = "1분전"
-            Log.d("XXXXXXXXXXXXXXXXX",currentList[position].toString())
 //            setShown(position)             //해당 메시지 확인하여 서버로 전송
         }
 
