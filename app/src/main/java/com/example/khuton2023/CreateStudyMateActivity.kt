@@ -118,8 +118,9 @@ class CreateStudyMateActivity : AppCompatActivity() {
 
 
             GlobalScope.launch {
+                var message : String
                 runBlocking {
-                    val message = getWelcome()
+                    message = getWelcome()
                     val chatRoom = ChatRoom(
                         studyMate.name,
                         studyMateId,
@@ -138,7 +139,7 @@ class CreateStudyMateActivity : AppCompatActivity() {
                     ChatRoomList(
                         studyMate.name,
                         studyMateId,
-                        "",
+                        message,
                         true,
                         studyMate.profileImage
                     )
