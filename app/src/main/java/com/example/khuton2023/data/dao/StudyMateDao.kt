@@ -10,6 +10,9 @@ interface StudyMateDao {
     @Query("SELECT * FROM studymate")
     fun getAll(): List<StudyMate>
 
+    @Query("SELECT * FROM studymate WHERE id == :findId")
+    fun getStudyMate(findId : String): StudyMate
+
     @Insert
     fun insert(vararg studyMate: StudyMate)
 }

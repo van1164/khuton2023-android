@@ -1,22 +1,21 @@
 package com.example.khuton2023
 
-import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.NotificationManagerCompat
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.room.Room
 import com.example.khuton2023.data.dao.Problem
 import com.example.khuton2023.data.dao.ProblemResponse
-import com.example.khuton2023.data.model.Mbti
-import com.example.khuton2023.data.model.StudyMate
+import com.example.khuton2023.data.database.ChattingData
+import com.example.khuton2023.data.model.ChatRoom
+import com.example.khuton2023.data.model.Message
 import com.example.khuton2023.databinding.ActivityChattingBinding
 import com.example.khuton2023.network.service.KhutonService
 import com.example.khuton2023.network.service.multiPartService
-import com.example.khuton2023.ui.dashboard.Message
 import com.google.firebase.auth.FirebaseAuth
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
@@ -85,54 +84,53 @@ val problems = listOf(
 )
 
 class ChattingActivity : AppCompatActivity() {
-    fun isNotificationEnabled(context: Context): Boolean {
-        return NotificationManagerCompat.from(context.getApplicationContext())
-            .areNotificationsEnabled()
-    }
+
 
     lateinit var binding: ActivityChattingBinding
     val apiService = multiPartService.create()
-    val adapter = RecyclerMessagesAdapter()
     var lastQuestion: String = ""
+    val chatRoomDb: ChattingData by lazy {
+        Room.databaseBuilder(
+            this,
+            ChattingData::class.java, "chatroom"
+        ).allowMainThreadQueries().build()
+    }
 
-    var karinaMessage = Message(
-        StudyMate(
-            "카리나", 2000, 1, 1,
-            Mbti.ENFJ, "images/elTjMhSZ4Xh7zmx5gm13I8Opw6d2+/카리나.jpg"
-        ), "용우야, \n 밥먹었어?", true
-    )
-
-    var proMessage = Message(
-        StudyMate(
-            "교수님", 1958, 1, 1,
-            Mbti.ENFJ, "images/elTjMhSZ4Xh7zmx5gm13I8Opw6d2+/애플.jpg"
-        ), "용우야, \n 밥먹었어?", true
-    )
-
+    val chatRoom: ChatRoom by lazy {
+        chatRoomDb.chatRoomDao().findByStudyMateId(intent.extras!!["studyMateId"] as String)
+    }
+    val adapter: RecyclerMessagesAdapter by lazy {RecyclerMessagesAdapter(chatRoom.studyMateName)}
     var messagList = mutableListOf<Message>()
     var isPro = false
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        isNotificationEnabled(this)
         setContentView(R.layout.activity_chatting)
         binding = ActivityChattingBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        if (intent.extras!!["pro"] as Boolean) {
-            isPro = true
-            binding.textView9.text = "교수님"
-        }
+
+        messagList.addAll(chatRoom.messages)
+        binding.textView9.text = chatRoom.studyMateName
+        adapter.submitList(messagList)
+
+
         KhutonService.create().getWelcome(
             FirebaseAuth.getInstance().currentUser!!.uid,
             if (isPro) "prof" else "karina"
         ).enqueue(object : Callback<String> {
             override fun onResponse(call: Call<String>, response: Response<String>) {
                 Log.d("BBBBBBBBBBBBBBBBBBBBBBBB", response.body().toString())
-                if(isPro){
-                    messagList.add(proMessage.copy(message = response.body().toString()))
-                }
-                else{
-                    messagList.add(karinaMessage.copy(message = response.body().toString()))
-                }
+                val message = Message(
+                    chatRoom.studyMateId,
+                    response.body().toString(),
+                    true,
+                    false,
+                    chatRoom.profileImage
+                )
+                messagList.add(message)
+                chatRoom.messages.add(message)
+                chatRoomDb.chatRoomDao().update(chatRoom)
                 // 성공적으로 업로드되었을 때의 처리
                 adapter.submitList(messagList)
                 adapter.notifyDataSetChanged()
@@ -173,45 +171,55 @@ class ChattingActivity : AppCompatActivity() {
                     Log.d("TTTTTTTTTTTTTTTTTTTTTTTTTTTT", t.toString())
                 }
             })
-        generateQuiz(ProblemResponse(problems, ""))
+        generateQuiz(ProblemResponse(problems, ""), chatRoom)
 
         adapter.submitList(messagList)
 
         binding.sendButton.setOnClickListener {
-            messagList.add(
-                Message(
-                    StudyMate(
-                        "카리나", 2000, 1, 1,
-                        Mbti.ENFJ, "images/elTjMhSZ4Xh7zmx5gm13I8Opw6d2+/카리나.jpg"
-                    ), binding.editTextText.text.toString(), false
+            if ("문제" in binding.editTextText.text.toString() || "새로운" in binding.editTextText.text.toString()) {
+//
+//                if (isPro) {
+//                    messagList.add(proMessage.copy(message = "새로운 문제를 내줄게."))
+//                } else {
+//                    messagList.add(karinaMessage.copy(message = "새로운 문제 갑니다~~"))
+//                }
+//                adapter.submitList(messagList)
+//                adapter.notifyDataSetChanged()
+//                binding.recyclerView.scrollToPosition(messagList.size - 1)
+                generateQuiz(ProblemResponse(problems, ""), chatRoom)
+            } else if (lastQuestion != "") {
+                val message = Message(
+                    chatRoom.studyMateId,
+                    binding.editTextText.text.toString(),
+                    false,
+                    true,
+                    chatRoom.profileImage
                 )
-            )
-            if ("문제" in binding.editTextText.text.toString() || "새로운" in binding.editTextText.text.toString()){
-                if(isPro){
-                    messagList.add(proMessage.copy(message = "새로운 문제를 내줄게."))
-                }
-                else{
-                    messagList.add(karinaMessage.copy(message="새로운 문제 갑니다~~"))
-                }
+                binding.editTextText.text = Editable.Factory.getInstance().newEditable("")
+                messagList.add(message)
+                chatRoom.messages.add(message)
+                chatRoomDb.chatRoomDao().update(chatRoom)
                 adapter.submitList(messagList)
                 adapter.notifyDataSetChanged()
                 binding.recyclerView.scrollToPosition(messagList.size - 1)
-                generateQuiz(ProblemResponse(problems,""))
-            } else if (lastQuestion != "") {
                 KhutonService.create().setAnswer(
                     FirebaseAuth.getInstance().uid!!,
                     lastQuestion,
                     binding.editTextText.text.toString(),
-                    if(isPro)"prof" else "karina"
+                    if (isPro) "prof" else "karina"
                 ).enqueue(object : Callback<String> {
                     override fun onResponse(call: Call<String>, response: Response<String>) {
                         Log.d("BBBBBBBBBBBBBBBBBBBBBBBB", response.body().toString())
-                        if(isPro){
-                            messagList.add(proMessage.copy(message = response.body()!!))
-                        }
-                        else{
-                            messagList.add(karinaMessage.copy(message = response.body()!!))
-                        }
+                        val message = Message(
+                            chatRoom.studyMateId,
+                            response.body().toString(),
+                            true,
+                            false,
+                            chatRoom.profileImage
+                        )
+                        messagList.add(message)
+                        chatRoom.messages.add(message)
+                        chatRoomDb.chatRoomDao().update(chatRoom)
                         adapter.submitList(messagList)
                         adapter.notifyDataSetChanged()
                         binding.recyclerView.scrollToPosition(messagList.size - 1)
@@ -289,7 +297,7 @@ class ChattingActivity : AppCompatActivity() {
                             ) {
                                 Log.d("BBBBBBBBBBBBBBBBBBBBBBBB", response.body().toString())
 
-                                generateQuiz(response.body()!!)
+                                generateQuiz(response.body()!!, chatRoom)
                                 // 성공적으로 업로드되었을 때의 처리
                             }
 
@@ -329,23 +337,30 @@ class ChattingActivity : AppCompatActivity() {
         }
     }
 
-    private fun generateQuiz(response: ProblemResponse) {
+    private fun generateQuiz(response: ProblemResponse, chatRoom: ChatRoom) {
         KhutonService.create().createProblem(
             FirebaseAuth.getInstance().currentUser!!.uid,
             hashMapOf(Pair("problems", response.problems))
         ).enqueue(object : Callback<Any> {
             override fun onResponse(call: Call<Any>, response: Response<Any>) {
                 Log.d("BBBBBBBBBBBBBBBBBBBBBBBB", response.body().toString())
-                KhutonService.create().getQuiz(FirebaseAuth.getInstance().currentUser!!.uid,if(isPro)"prof" else "karina")
+                KhutonService.create().getQuiz(
+                    FirebaseAuth.getInstance().currentUser!!.uid,
+                    if (isPro) "prof" else "karina"
+                )
                     .enqueue(object : Callback<String> {
                         override fun onResponse(call: Call<String>, response: Response<String>) {
                             Log.d("BBBBBBBBBBBBBBBBBBBBBBBB", response.body().toString())
-                            if(isPro){
-                                messagList.add(proMessage.copy(message = response.body()!!))
-                            }
-                            else{
-                                messagList.add(karinaMessage.copy(message=response.body()!!))
-                            }
+                            val message = Message(
+                                chatRoom.studyMateId,
+                                response.body().toString(),
+                                true,
+                                false,
+                                chatRoom.profileImage
+                            )
+                            messagList.add(message)
+                            chatRoom.messages.add(message)
+                            chatRoomDb.chatRoomDao().update(chatRoom)
                             adapter.submitList(messagList)
                             adapter.notifyDataSetChanged()
                             binding.recyclerView.scrollToPosition(messagList.size - 1)

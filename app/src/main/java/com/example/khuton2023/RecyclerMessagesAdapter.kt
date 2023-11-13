@@ -1,6 +1,7 @@
 package com.example.khuton2023
 
 
+import android.graphics.Bitmap
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -9,12 +10,16 @@ import androidx.appcompat.content.res.AppCompatResources
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import androidx.room.Room
 import androidx.viewbinding.ViewBinding
 import com.bumptech.glide.Glide
+import com.example.khuton2023.data.dao.StudyMateDao
+import com.example.khuton2023.data.database.StudyMateData
+import com.example.khuton2023.data.model.Message
+import com.example.khuton2023.data.model.StudyMate
 import com.example.khuton2023.databinding.MessageMineBinding
 import com.example.khuton2023.databinding.MessageOppoBinding
 import com.example.khuton2023.ui.dashboard.ChatRecyclerViewAdapter
-import com.example.khuton2023.ui.dashboard.Message
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.storage.FirebaseStorage
@@ -27,6 +32,7 @@ abstract class MyViewHolder(binding: ViewBinding) : RecyclerView.ViewHolder(bind
 }
 
 class RecyclerMessagesAdapter(
+    val userName : String
 ) : ListAdapter<Message, MyViewHolder>(diffUtil) {
     override fun getItemViewType(position: Int): Int {
         Log.d("XXXXXXXXXXXXXXXXX",currentList[position].toString())//메시지의 id에 따라 내 메시지/상대 메시지 구분
@@ -75,13 +81,22 @@ class RecyclerMessagesAdapter(
         var name = itemView.oppoNameText
         var image = itemView.selectProfileButton
         var time = itemView.time
+        val db = Room.databaseBuilder(
+            text.context,
+            StudyMateData::class.java, "studymate"
+        ).build()
 
         override fun bind(position: Int) {           //메시지 UI 항목 초기화
-            if (currentList[position].studyMate.profileImageUri != null) {
+            if (currentList[position].profileImage != null) {
                 image.apply {
-                    FirebaseStorage.getInstance().reference.child(currentList[position].studyMate.profileImageUri!!).downloadUrl.addOnSuccessListener {
-                        Glide.with(this.context).load(it.toString()).into(this)
-                    }
+                    this.setImageBitmap(
+                        Bitmap.createScaledBitmap(
+                            currentList[position].profileImage!!,
+                            500,
+                            700,
+                            true
+                        )
+                    )
 
                     this.background =
                         AppCompatResources.getDrawable(
@@ -97,7 +112,7 @@ class RecyclerMessagesAdapter(
 
             var message = currentList[position]
             text.text = message.message
-            name.text = message.studyMate.name
+            name.text = userName
             time.text = "1분전"
             Log.d("XXXXXXXXXXXXXXXXX",currentList[position].toString())
 //            setShown(position)             //해당 메시지 확인하여 서버로 전송

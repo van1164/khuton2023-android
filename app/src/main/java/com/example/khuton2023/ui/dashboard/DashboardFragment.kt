@@ -7,16 +7,12 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.khuton2023.data.model.Mbti
-import com.example.khuton2023.data.model.StudyMate
+import androidx.room.Room
+import com.example.khuton2023.data.database.ChattingRoomListDatabase
 import com.example.khuton2023.databinding.FragmentDashboardBinding
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
-
-
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 
 class DashboardFragment : Fragment() {
@@ -32,6 +28,8 @@ class DashboardFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+
+
         val dashboardViewModel =
             ViewModelProvider(this).get(DashboardViewModel::class.java)
         val myUid = FirebaseAuth.getInstance().currentUser!!.uid
@@ -40,14 +38,13 @@ class DashboardFragment : Fragment() {
         val adapter = ChatRecyclerViewAdapter()
         recycler_chatroom.layoutManager = LinearLayoutManager(requireContext())
         recycler_chatroom.adapter = adapter
+        val db = Room.databaseBuilder(
+            requireContext(),
+            ChattingRoomListDatabase::class.java,
+            "ChatRoomList"
+        ).allowMainThreadQueries().build()
+        val list = db.chatRoomListDao().getAll()
 
-        val list = listOf(Message(
-            StudyMate("카리나",2000,1,1,
-                Mbti.ENFJ,"images/elTjMhSZ4Xh7zmx5gm13I8Opw6d2+/카리나.jpg"),"메시지가 도착했습니다.",true),
-
-            Message(StudyMate("교수님",1968,1,1,
-                Mbti.ENFJ,"images/elTjMhSZ4Xh7zmx5gm13I8Opw6d2+/애플.jpg"),"메시지가 도착했습니다.",true)
-            )
         adapter.submitList(list)
 
 
@@ -62,7 +59,7 @@ class DashboardFragment : Fragment() {
 //        val list = db.studyMateDao().getAll().map{Message(it,"용우야, 오늘 공부한 것 좀 보내줘",1)}
 //        adapter.submitList(list)
 
-            return binding.root
+        return binding.root
     }
 
     override fun onDestroyView() {

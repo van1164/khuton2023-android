@@ -22,12 +22,16 @@ class ProfileRecyclerViewAdapter : ListAdapter<StudyMate, ProfileRecyclerViewAda
     class MyViewHolder(private val binding: ProfileItemBinding) :
         RecyclerView.ViewHolder(binding.root) {
         fun bind(item: StudyMate) {
-            if(item.profileImageUri != null){
+            if(item.profileImage != null){
                 binding.selectProfileButton.apply {
-                    FirebaseStorage.getInstance().reference.child(item.profileImageUri).downloadUrl.addOnSuccessListener {
-                        Glide.with(this.context).load(it.toString()).into(this)
-//                        this.setImageURI(it)
-                    }
+                    this.setImageBitmap(
+                        Bitmap.createScaledBitmap(
+                            item.profileImage!!,
+                            500,
+                            700,
+                            true
+                        )
+                    )
 
                     this.background = getDrawable(binding.selectProfileButton.context,R.drawable.border_profile)
                     this.clipToOutline = true

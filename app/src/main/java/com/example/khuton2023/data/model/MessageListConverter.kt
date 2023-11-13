@@ -2,19 +2,21 @@ package com.example.khuton2023.data.model
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.net.Uri
 import androidx.room.TypeConverter
 import com.google.gson.Gson
 import java.io.ByteArrayOutputStream
 
-class RoomTypeConverter {
-
+class MessageListConverter {
     @TypeConverter
-    fun toString(uri: Uri?):String{
-        return uri.toString()
+    fun listToJson(value: MutableList<Message>): String {
+        return Gson().toJson(value)
     }
 
-    // Bitmap -> ByteArray 변환
+    @TypeConverter
+    fun jsonToList(value: String): MutableList<Message> {
+        return Gson().fromJson(value,Array<Message>::class.java).toMutableList()
+    }
+
     @TypeConverter
     fun toByteArray(bitmap : Bitmap?) : ByteArray?{
         val outputStream = ByteArrayOutputStream()
@@ -36,7 +38,4 @@ class RoomTypeConverter {
             null
         }
     }
-
-
-
 }
