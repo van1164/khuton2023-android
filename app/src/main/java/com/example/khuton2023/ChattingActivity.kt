@@ -99,7 +99,7 @@ class ChattingActivity : AppCompatActivity() {
     val chatRoom: ChatRoom by lazy {
         chatRoomDb.chatRoomDao().findByStudyMateId(intent.extras!!["studyMateId"] as String)
     }
-    val adapter: RecyclerMessagesAdapter by lazy {RecyclerMessagesAdapter(chatRoom.studyMateName)}
+    val adapter: RecyclerMessagesAdapter by lazy {RecyclerMessagesAdapter(chatRoom.studyMateName,chatRoom.profileImage)}
     var messagList = mutableListOf<Message>()
     var isPro = false
 
@@ -165,7 +165,6 @@ class ChattingActivity : AppCompatActivity() {
                     binding.editTextText.text.toString(),
                     false,
                     true,
-                    chatRoom.profileImage
                 )
                 binding.editTextText.text = Editable.Factory.getInstance().newEditable("")
                 messagList.add(message)
@@ -187,7 +186,6 @@ class ChattingActivity : AppCompatActivity() {
                             response.body().toString(),
                             true,
                             false,
-                            chatRoom.profileImage
                         )
                         messagList.add(message)
                         chatRoom.messages.add(message)
@@ -326,7 +324,6 @@ class ChattingActivity : AppCompatActivity() {
                                 response.body().toString(),
                                 true,
                                 false,
-                                chatRoom.profileImage
                             )
                             messagList.add(message)
                             chatRoom.messages.add(message)

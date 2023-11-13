@@ -12,7 +12,6 @@ data class Message(
     var message: String = "",
     val oppo:Boolean,
     var confirmed:Boolean=false,
-    var profileImage : Bitmap?,
     @PrimaryKey(autoGenerate = true)
     val uid: Int? =null
 ) : Serializable {

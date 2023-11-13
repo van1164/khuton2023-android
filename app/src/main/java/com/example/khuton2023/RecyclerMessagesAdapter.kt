@@ -32,7 +32,8 @@ abstract class MyViewHolder(binding: ViewBinding) : RecyclerView.ViewHolder(bind
 }
 
 class RecyclerMessagesAdapter(
-    val userName : String
+    val userName : String,
+    val profileImage : Bitmap?
 ) : ListAdapter<Message, MyViewHolder>(diffUtil) {
     override fun getItemViewType(position: Int): Int {
         return if (currentList[position].oppo) 0 else 1
@@ -85,12 +86,12 @@ class RecyclerMessagesAdapter(
         ).build()
 
         override fun bind(position: Int) {           //메시지 UI 항목 초기화
-            if (currentList[position].profileImage != null) {
-                Log.d("PPPPPPPPPPPPPPPPPPPPPPPP",currentList[position].profileImage.toString())
+            if (profileImage != null) {
+                Log.d("PPPPPPPPPPPPPPPPPPPPPPPP",profileImage.toString())
                 image.apply {
                     this.setImageBitmap(
                         Bitmap.createScaledBitmap(
-                            currentList[position].profileImage!!,
+                            profileImage,
                             500,
                             700,
                             true

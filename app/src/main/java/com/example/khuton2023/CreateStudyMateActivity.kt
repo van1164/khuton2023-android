@@ -29,7 +29,9 @@ import com.example.khuton2023.databinding.ActivityCreateStudyMateBinding
 import com.example.khuton2023.network.service.KhutonService
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -87,7 +89,7 @@ class CreateStudyMateActivity : AppCompatActivity() {
         ).allowMainThreadQueries().build()
 
         val chatRoomDb = Room.databaseBuilder(
-            this,
+            applicationContext,
             ChattingData::class.java,
             "chatroom"
         ).allowMainThreadQueries().build()
@@ -99,58 +101,6 @@ class CreateStudyMateActivity : AppCompatActivity() {
             getContent.launch("image/*")
         }
         binding.nextButton.setOnClickListener {
-//            val storage = FirebaseStorage.getInstance()
-//            val storageRef = storage.reference
-//            val uuid = FirebaseAuth.getInstance().currentUser!!.uid
-//
-//            val riverRef =
-//                storageRef.child("images/${uuid}+/${binding.nameEditText.text.toString()}")
-//            var downloadUrl: String? = null
-//            profileImage?.let {
-//                Log.d("VVVVVVVVVVVVV", "VVVVVVVVVVVVVVVVVVV")
-//                val baos = ByteArrayOutputStream()
-//                it.compress(Bitmap.CompressFormat.JPEG, 100, baos)
-//                val task = riverRef.putBytes(baos.toByteArray()).addOnFailureListener {
-//                    Log.d("XXXXXXXXXXXX", "XXXXXXXXXXXXXXXXX")
-//                }.addOnSuccessListener {
-//                    downloadUrl = "images/${uuid}+/${binding.nameEditText.text.toString()}"
-//                    val database = Firebase.database.reference
-//                    val studyMate = StudyMate(
-//                        binding.nameEditText.text.toString(),
-//                        yearItem,
-//                        monthItem,
-//                        dayItem,
-//                        findMbti(binding.spinner.selectedItem.toString()),
-//                        downloadUrl,
-//                        uuid
-//                    )
-//                    Log.d("AAAAAAAAAAAAAAAAA", studyMate.toString())
-//                    database.child("studyMates").push().setValue(
-//                        studyMate
-//                    )
-//                    var chatRoom = ChatRoom(         //추가할 채팅방 정보 세팅
-//                        "",
-//                        listOf<Message>(),
-//                    )
-//                    var chatDatabase = FirebaseDatabase.getInstance().getReference("ChatRoom")
-//                    chatDatabase.child("chatRooms").push().setValue(chatRoom)
-//                }
-//
-//                task.continueWithTask { task ->
-//                    if (!task.isSuccessful) {
-//                        task.exception?.let {
-//                            throw it
-//                        }
-//                    }
-//                    riverRef.downloadUrl
-//                }.addOnCompleteListener { task ->
-//                    if (task.isSuccessful) {
-//                    } else {
-//                    }
-//
-//                }
-//
-//            }
             val studyMateId = UidGenerator().generateUID()
             val studyMate = StudyMate(
                 binding.nameEditText.text.toString(),
@@ -162,71 +112,62 @@ class CreateStudyMateActivity : AppCompatActivity() {
                 studyMateId
             )
 
-
             db.studyMateDao().insert(
                 studyMate
             )
-            chatRoomListDb.chatRoomListDao().insert(
-                ChatRoomList(
-                    studyMate.name,
-                    studyMateId,
-                    "",
-                    true,
-                    studyMate.profileImage
+
+
+            GlobalScope.launch {
+                runBlocking {
+                    val message = getWelcome()
+                    val chatRoom = ChatRoom(
+                        studyMate.name,
+                        studyMateId,
+                        messages = mutableListOf<Message>(Message(studyMateId,message,true)),
+                        studyMate.profileImage
+                    )
+                    chatRoomDb.chatRoomDao().insert(
+                        chatRoom
+                    )
+                    Log.d("AAAAAAAAAAAAAAAAAAA","AAAAAAAAAAAAAAAAAAAAAAAA")
+                }
+
+
+
+                chatRoomListDb.chatRoomListDao().insert(
+                    ChatRoomList(
+                        studyMate.name,
+                        studyMateId,
+                        "",
+                        true,
+                        studyMate.profileImage
+                    )
                 )
-            )
-            val chatRoom = ChatRoom(
-                studyMate.name,
-                studyMateId,
-                messages = mutableListOf<Message>(),
-                studyMate.profileImage
-            )
-            chatRoomDb.chatRoomDao().insert(
-                chatRoom
-            )
+                Log.d("VVVVVVVVVVVVVVVVVVVVVVVVV","VVVVVVVVVVVVVVVVVVVVV")
 
 
-            getWelcome(chatRoomDb, studyMateId, studyMate.profileImage,chatRoom)
+            }
 
-            val intent = Intent(this@CreateStudyMateActivity, MainActivity::class.java)
-            intent.flags =
-                Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
-            startActivity(intent)
+            finish()
+//            chatRoom.messages.add()
+//            chatRoomDb.chatRoomDao().update(chatRoom)
+//            getWelcome(chatRoomDb, studyMateId, chatRoom)
+//            val intent = Intent(
+//                this@CreateStudyMateActivity,
+//                MainActivity::class.java
+//            )
+//            intent.flags =
+//                Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+//            startActivity(intent)
         }
 
     }
 
-    private fun getWelcome(
-        chatRoomDb: ChattingData,
-        studyMateId: String,
-        profileImage: Bitmap?,
-        chatRoom: ChatRoom
-    ) {
-        KhutonService.create().getWelcome(
+    private fun getWelcome(): String {
+        return KhutonService.create().getWelcome(
             FirebaseAuth.getInstance().currentUser!!.uid,
             "karina"
-        ).enqueue(object : Callback<String> {
-            override fun onResponse(call: Call<String>, response: Response<String>) {
-                Log.d("KARINAKRINA", response.body().toString())
-                val message = Message(
-                    studyMateId,
-                    response.body().toString(),
-                    true,
-                    false,
-                    profileImage
-                )
-                chatRoom.messages.add(message)
-                chatRoomDb.chatRoomDao().update(chatRoom)
-                // 성공적으로 업로드되었을 때의 처리
-            }
-
-            override fun onFailure(call: Call<String>, t: Throwable) {
-                // 업로드 실패 시의 처리
-                Log.d("TTTTTTTTTTTTTTTTTTTTTTTTTTTT", t.toString())
-            }
-        })
-
-
+        ) .execute().body().toString()
     }
 
     private fun findMbti(mbti: String): Mbti {

@@ -32,7 +32,7 @@ class HomeFragment : Fragment() {
     // This property is only valid between onCreateView and
     // onDestroyView.
     private val binding get() = _binding!!
-
+    val adapter = ProfileRecyclerViewAdapter()
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -43,7 +43,7 @@ class HomeFragment : Fragment() {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
         val recyclerView = binding.profileRecyclerView
 
-        val adapter = ProfileRecyclerViewAdapter()
+
         recyclerView.adapter = adapter
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         recyclerView.addItemDecoration(RecyclerViewDecoration(60))
@@ -52,15 +52,26 @@ class HomeFragment : Fragment() {
             requireContext(),
             StudyMateData::class.java, "studymate"
         ).allowMainThreadQueries().build()
-
-        adapter.submitList(db.studyMateDao().getAll())
-
+        val item = db.studyMateDao().getAll()
+        adapter.submitList(item)
+        adapter.notifyDataSetChanged()
+        recyclerView.scrollToPosition(item.size-1)
 
         binding.button.setOnClickListener {
             val intent = Intent(requireContext(), CreateStudyMateActivity::class.java)
             startActivity(intent)
         }
         return binding.root
+    }
+
+    override fun onResume() {
+        super.onResume()
+        val db = Room.databaseBuilder(
+            requireContext(),
+            StudyMateData::class.java, "studymate"
+        ).allowMainThreadQueries().build()
+        val item = db.studyMateDao().getAll()
+        adapter.submitList(item)
     }
 
     override fun onDestroyView() {
