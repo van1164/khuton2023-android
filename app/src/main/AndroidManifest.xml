@@ -44,7 +44,7 @@
             android:name=".ChattingActivity"
             android:exported="false" />
         <activity
-            android:name=".CreateStudyMateActivity"
+            android:name=".ui.create_study_mate.CreateStudyMateActivity"
             android:exported="false" />
         <activity
             android:name=".LoginActivity"

@@ -9,21 +9,9 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.room.Room
-import com.example.khuton2023.CreateStudyMateActivity
+import com.example.khuton2023.ui.create_study_mate.CreateStudyMateActivity
 import com.example.khuton2023.data.database.StudyMateData
-import com.example.khuton2023.data.model.Mbti
-import com.example.khuton2023.data.model.StudyMate
 import com.example.khuton2023.databinding.FragmentHomeBinding
-import com.google.firebase.Firebase
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.ValueEventListener
-import com.google.firebase.database.database
-import com.google.firebase.database.getValue
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 
 class HomeFragment : Fragment() {
 

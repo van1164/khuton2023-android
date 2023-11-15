@@ -5,5 +5,4 @@ import java.io.Serializable
 data class AppUser(val name:String?="",
                 val uid:String?="",
                 val email:String?=""): Serializable {
-
 }

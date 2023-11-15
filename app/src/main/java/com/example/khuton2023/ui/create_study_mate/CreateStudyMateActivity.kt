@@ -1,21 +1,22 @@
-package com.example.khuton2023
+package com.example.khuton2023.ui.create_study_mate
 
 import android.app.DatePickerDialog
-import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
-import android.util.Log
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.ImageView
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.LifecycleOwner
 import androidx.room.Room
+import com.example.khuton2023.R
 import com.example.khuton2023.data.database.ChattingData
 import com.example.khuton2023.data.database.ChattingRoomListDatabase
 import com.example.khuton2023.data.database.StudyMateData
@@ -29,23 +30,16 @@ import com.example.khuton2023.databinding.ActivityCreateStudyMateBinding
 import com.example.khuton2023.network.service.KhutonService
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 import java.util.Calendar
 
 class CreateStudyMateActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityCreateStudyMateBinding
-
-    var yearItem = 1999
-    var monthItem = 1
-    var dayItem = 1
-    var mbti = Mbti.ISFP
+    val viewModel : CreateStudyMateViewModel by viewModels()
     var profileImage: Bitmap? = null
+
     val getContent = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         uri?.let {
             val bitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
@@ -54,19 +48,14 @@ class CreateStudyMateActivity : AppCompatActivity() {
             } else {
                 MediaStore.Images.Media.getBitmap(this.contentResolver, uri)
             }
-            binding.selectProfileButton.setImageBitmap(
-                Bitmap.createScaledBitmap(
-                    bitmap,
-                    500,
-                    700,
-                    true
-                )
-            )
             profileImage = Bitmap.createScaledBitmap(
                 bitmap,
                 500,
                 700,
                 true
+            )
+            binding.selectProfileButton.setImageBitmap(
+                profileImage
             )
             binding.selectProfileButton.background = getDrawable(R.drawable.border_profile)
             binding.selectProfileButton.clipToOutline = true
@@ -75,28 +64,43 @@ class CreateStudyMateActivity : AppCompatActivity() {
 
     }
 
+    private lateinit var studyMateDB : StudyMateData
+    private lateinit var chatRoomListDb : ChattingRoomListDatabase
+    private lateinit var chatRoomDb : ChattingData
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val db = Room.databaseBuilder(
+        binding = ActivityCreateStudyMateBinding.inflate(layoutInflater)
+        binding.lifecycleOwner = this
+        binding.viewModel = viewModel
+        setContentView(binding.root)
+
+
+        studyMateDB = Room.databaseBuilder(
             this,
             StudyMateData::class.java, "studymate"
         ).allowMainThreadQueries().build()
 
-        val chatRoomListDb = Room.databaseBuilder(
+        chatRoomListDb = Room.databaseBuilder(
             this,
             ChattingRoomListDatabase::class.java,
             "ChatRoomList"
         ).allowMainThreadQueries().build()
 
-        val chatRoomDb = Room.databaseBuilder(
+        chatRoomDb = Room.databaseBuilder(
             applicationContext,
             ChattingData::class.java,
             "chatroom"
         ).allowMainThreadQueries().build()
-        binding = ActivityCreateStudyMateBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+
+
         initSpinner()
         initBirthSelectButton()
+        initListener()
+
+    }
+
+    private fun initListener() {
         binding.selectProfileButton.setOnClickListener {
             getContent.launch("image/*")
         }
@@ -104,71 +108,78 @@ class CreateStudyMateActivity : AppCompatActivity() {
             val studyMateId = UidGenerator().generateUID()
             val studyMate = StudyMate(
                 binding.nameEditText.text.toString(),
-                yearItem,
-                monthItem,
-                dayItem,
+                viewModel.birth.value.year,
+                viewModel.birth.value.month,
+                viewModel.birth.value.day,
                 findMbti(binding.spinner.selectedItem.toString()),
                 profileImage,
                 studyMateId
             )
 
-            db.studyMateDao().insert(
+            studyMateDB.studyMateDao().insert(
                 studyMate
             )
 
 
-            GlobalScope.launch {
-                var message : String
-                runBlocking {
-                    message = getWelcome()
-                    val chatRoom = ChatRoom(
-                        studyMate.name,
-                        studyMateId,
-                        messages = mutableListOf<Message>(Message(studyMateId,message,true)),
-                        studyMate.profileImage
-                    )
-                    chatRoomDb.chatRoomDao().insert(
-                        chatRoom
-                    )
-                    Log.d("AAAAAAAAAAAAAAAAAAA","AAAAAAAAAAAAAAAAAAAAAAAA")
-                }
-
-
-
-                chatRoomListDb.chatRoomListDao().insert(
-                    ChatRoomList(
-                        studyMate.name,
-                        studyMateId,
-                        message,
-                        true,
-                        studyMate.profileImage
-                    )
-                )
-                Log.d("VVVVVVVVVVVVVVVVVVVVVVVVV","VVVVVVVVVVVVVVVVVVVVV")
-
-
-            }
+            getWelcomeMessage(studyMate, studyMateId)
 
             finish()
-//            chatRoom.messages.add()
-//            chatRoomDb.chatRoomDao().update(chatRoom)
-//            getWelcome(chatRoomDb, studyMateId, chatRoom)
-//            val intent = Intent(
-//                this@CreateStudyMateActivity,
-//                MainActivity::class.java
-//            )
-//            intent.flags =
-//                Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
-//            startActivity(intent)
         }
-
     }
+
+    private fun getWelcomeMessage(
+        studyMate: StudyMate,
+        studyMateId: String
+    ) {
+        GlobalScope.launch {
+            var message: String
+            runBlocking {
+                message = getWelcome()
+                insertMessageToChatRoom(studyMate, studyMateId, message)
+            }
+
+            insertMessageToChatRoomList(studyMate, studyMateId, message)
+        }
+    }
+
+    private fun insertMessageToChatRoomList(
+        studyMate: StudyMate,
+        studyMateId: String,
+        message: String
+    ) {
+        chatRoomListDb.chatRoomListDao().insert(
+            ChatRoomList(
+                studyMate.name,
+                studyMateId,
+                message,
+                true,
+                studyMate.profileImage
+            )
+        )
+    }
+
+    private fun insertMessageToChatRoom(
+        studyMate: StudyMate,
+        studyMateId: String,
+        message: String
+    ) {
+        val chatRoom = ChatRoom(
+            studyMate.name,
+            studyMateId,
+            messages = mutableListOf<Message>(Message(studyMateId, message, true)),
+            studyMate.profileImage
+        )
+        chatRoomDb.chatRoomDao().insert(
+            chatRoom
+        )
+    }
+
 
     private fun getWelcome(): String {
         return KhutonService.create().getWelcome(
             FirebaseAuth.getInstance().currentUser!!.uid,
             "karina"
-        ) .execute().body().toString()
+        ).execute().body().toString()
     }
 
     private fun findMbti(mbti: String): Mbti {
@@ -179,10 +190,7 @@ class CreateStudyMateActivity : AppCompatActivity() {
         binding.birthSelectButton.setOnClickListener {
             val cal = Calendar.getInstance()
             val data = DatePickerDialog.OnDateSetListener { view, year, month, day ->
-                yearItem = year
-                monthItem = month
-                dayItem = day
-                binding.birthSelectButton.text = "${yearItem}-${monthItem + 1}-${dayItem}"
+                viewModel.setBirth(year,month,day)
             }
             DatePickerDialog(
                 this,
