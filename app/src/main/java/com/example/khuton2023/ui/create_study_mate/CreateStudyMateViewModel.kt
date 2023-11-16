@@ -18,10 +18,5 @@ class CreateStudyMateViewModel : ViewModel() {
         _birth.update {
             Birth(year, month, day)
         }
-        Log.d("XXXXXXXXXXXXXXXX",_birth.value.toString())
-    }
-
-    fun birthToString(): String {
-        return "${_birth.value.year.toString()}-${_birth.value.month.toString()}-${_birth.value.day.toString()}"
     }
 }
