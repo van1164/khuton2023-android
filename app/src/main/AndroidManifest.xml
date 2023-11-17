@@ -41,7 +41,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ChattingActivity"
+            android:name=".ui.chatting.ChattingActivity"
             android:exported="false" />
         <activity
             android:name=".ui.create_study_mate.CreateStudyMateActivity"

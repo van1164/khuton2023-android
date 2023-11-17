@@ -6,19 +6,13 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.appcompat.content.res.AppCompatResources.getDrawable
-import androidx.core.content.ContextCompat.startActivity
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import androidx.room.Room
-import com.bumptech.glide.Glide
-import com.example.khuton2023.ChattingActivity
+import com.example.khuton2023.ui.chatting.ChattingActivity
 import com.example.khuton2023.R
 import com.example.khuton2023.data.model.ChatRoomList
-import com.example.khuton2023.data.model.Message
-import com.example.khuton2023.data.model.StudyMate
 import com.example.khuton2023.databinding.ChatContentItemBinding
-import com.google.firebase.storage.FirebaseStorage
 
 
 class ChatRecyclerViewAdapter :
