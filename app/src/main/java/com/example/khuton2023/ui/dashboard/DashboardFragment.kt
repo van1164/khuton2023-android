@@ -19,8 +19,6 @@ class DashboardFragment : Fragment() {
 
     private var _binding: FragmentDashboardBinding? = null
 
-    // This property is only valid between onCreateView and
-    // onDestroyView.
     private val binding get() = _binding!!
 
     override fun onCreateView(
@@ -34,10 +32,10 @@ class DashboardFragment : Fragment() {
             ViewModelProvider(this).get(DashboardViewModel::class.java)
         val myUid = FirebaseAuth.getInstance().currentUser!!.uid
         _binding = FragmentDashboardBinding.inflate(inflater, container, false)
-        val recycler_chatroom = binding.chatRecycerView
+        val recyclerChatRoom = binding.chatRecycerView
         val adapter = ChatRecyclerViewAdapter()
-        recycler_chatroom.layoutManager = LinearLayoutManager(requireContext())
-        recycler_chatroom.adapter = adapter
+        recyclerChatRoom.layoutManager = LinearLayoutManager(requireContext())
+        recyclerChatRoom.adapter = adapter
         val db = Room.databaseBuilder(
             requireContext(),
             ChattingRoomListDatabase::class.java,
@@ -46,18 +44,6 @@ class DashboardFragment : Fragment() {
         val list = db.chatRoomListDao().getAll()
 
         adapter.submitList(list)
-
-
-//        val recyclerView = binding.chatRecycerView
-//        val adapter = ChatRecyclerViewAdapter()
-//        recyclerView.adapter = adapter
-//        recyclerView.layoutManager = LinearLayoutManager(requireContext())
-//        val db = Room.databaseBuilder(
-//            requireContext(),
-//            StudyMateDatabase::class.java, "StudyMate1"
-//        ).allowMainThreadQueries().build()
-//        val list = db.studyMateDao().getAll().map{Message(it,"용우야, 오늘 공부한 것 좀 보내줘",1)}
-//        adapter.submitList(list)
 
         return binding.root
     }
