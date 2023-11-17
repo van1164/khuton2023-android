@@ -29,33 +29,46 @@ class ChatRecyclerViewAdapter :
 
         fun bind(item: ChatRoomList) {
             if (item.profileImage != null) {
-                binding.selectProfileButton.apply {
-                    this.setImageBitmap(
-                        Bitmap.createScaledBitmap(
-                            item.profileImage!!,
-                            500,
-                            700,
-                            true
-                        )
-                    )
-
-                    this.background =
-                        getDrawable(binding.selectProfileButton.context, R.drawable.border_profile)
-                    this.clipToOutline = true
-                    this.scaleType = ImageView.ScaleType.CENTER_CROP
-                }
+                changeProfileImage(item)
             }
             binding.chatName.text = item.name.toString()
             binding.chatContent.text = item.lastMessage
+            onClicked(item)
+        }
+
+        private fun changeProfileImage(item: ChatRoomList) {
+            binding.selectProfileButton.apply {
+                this.setImageBitmap(
+                    createBitmap(item)
+                )
+
+                this.background =
+                    getDrawable(binding.selectProfileButton.context, R.drawable.border_profile)
+                this.clipToOutline = true
+                this.scaleType = ImageView.ScaleType.CENTER_CROP
+            }
+        }
+
+        private fun createBitmap(item: ChatRoomList) =
+            Bitmap.createScaledBitmap(
+                item.profileImage!!,
+                500,
+                700,
+                true
+            )
+
+        private fun onClicked(item: ChatRoomList) {
             binding.root.setOnClickListener {
                 binding.root.context.startActivity(
                     Intent(binding.root.context, ChattingActivity::class.java)
-                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK).putExtra("studyMateId",
+                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK).putExtra(
+                            "studyMateId",
                             item.studyMateId
                         )
                 )
             }
         }
+
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
